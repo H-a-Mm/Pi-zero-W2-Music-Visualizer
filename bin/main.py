@@ -24,10 +24,17 @@ class Main:
         width, height = glfw.get_framebuffer_size(self.win)
         self.ctx.viewport = (0, 0, width, height)
 
+        self.ctx.enable(moderngl.BLEND)
+
+    def check_input(self):
+        if glfw.get_key(self.win, glfw.KEY_ESCAPE):
+            glfw.terminate()
+
     def run(self):
         while not glfw.window_should_close(self.win):
-            self.ctx.clear(0.2, 0.3, 0.3)
+            self.ctx.clear(0.0, 0.0, 0.0)
 
+            self.check_input()
             self.render.render()
 
             glfw.swap_buffers(self.win)
