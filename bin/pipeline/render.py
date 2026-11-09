@@ -49,12 +49,11 @@ class Render:
 
         self.uTime = 1.0
         self.uScrollSpeed = 0.025
-        self.uDarkColor = [0, 0, 0]
+        self.uDarkColor = [5, 5, 5]
         self.uLightColor = self.colors[0]
 
     def cycle_col(self):
-        # Slow interpolation speed
-        self.color_t += 0.0002
+        self.color_t += 0.0002 # Time var
     
         if self.color_t >= 1.0:
             self.color_t = 0.0
@@ -63,7 +62,6 @@ class Render:
         current = self.colors[self.color_index]
         target = self.colors[(self.color_index + 1) % len(self.colors)]
     
-        # Smoothstep easing
         t = self.color_t * self.color_t * (3.0 - 2.0 * self.color_t)
     
         self.uLightColor[0] = int(current[0] + (target[0] - current[0]) * t)
@@ -73,8 +71,6 @@ class Render:
         self.uDarkColor[0] = max(0, self.uLightColor[0] - 20)
         self.uDarkColor[1] = max(0, self.uLightColor[1] - 20)
         self.uDarkColor[2] = max(0, self.uLightColor[2] - 20)
-
-        
 
     # Load the shaders, works in windows and linux
     # Path is relitive for root (Above bin)
