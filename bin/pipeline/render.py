@@ -1,12 +1,6 @@
 # Internal Libs
-import os
-import colorsys
 
 # External Libs
-import numpy as np
-from pathlib import Path
-import moderngl
-from PIL import Image
 
 # Local Modules
 from bin.pipeline.elemets.background import Background
