@@ -1,5 +1,6 @@
 # Internal Libs
 import os
+import colorsys
 
 # External Libs
 import numpy as np
@@ -19,11 +20,22 @@ class Render:
 
         self.textures = {}
 
+        self.colors = [
+            [22, 22, 22],   # Black
+            [0, 31, 73],    # Blue
+            [159, 126, 49], # Yello
+            [99, 5, 56],    # Pink
+            [49, 2, 62]     # Purple
+        ]
+
+        self.color_index = 0
+        self.color_t = 0.0
+
         self.vertices = np.array([
-            -0.5, -0.5, 0.0, 0.0,
-             0.5, -0.5, 1.0, 0.0,
-            -0.5,  0.5, 0.0, 1.0,
-             0.5,  0.5, 1.0, 1.0,
+            -1.0, -1.0, 0.0, 0.0,
+             1.0, -1.0, 1.0, 0.0,
+            -1.0,  1.0, 0.0, 1.0,
+             1.0,  1.0, 1.0, 1.0,
         ], dtype='f4')
 
         self.vbo = self.ctx.buffer(
@@ -35,15 +47,34 @@ class Render:
             [(self.vbo, '2f 2f', 'in_pos', 'in_uv')]
         )
 
-        self.load_texture(
-            "background",
-            "assets/bg_img.png"
-        )
+        self.uTime = 1.0
+        self.uScrollSpeed = 0.025
+        self.uDarkColor = [0, 0, 0]
+        self.uLightColor = self.colors[0]
 
-        self.load_texture(
-            "background_element",
-            "assets/bg_elm_img.png"
-        )
+    def cycle_col(self):
+        # Slow interpolation speed
+        self.color_t += 0.0002
+    
+        if self.color_t >= 1.0:
+            self.color_t = 0.0
+            self.color_index = (self.color_index + 1) % len(self.colors)
+    
+        current = self.colors[self.color_index]
+        target = self.colors[(self.color_index + 1) % len(self.colors)]
+    
+        # Smoothstep easing
+        t = self.color_t * self.color_t * (3.0 - 2.0 * self.color_t)
+    
+        self.uLightColor[0] = int(current[0] + (target[0] - current[0]) * t)
+        self.uLightColor[1] = int(current[1] + (target[1] - current[1]) * t)
+        self.uLightColor[2] = int(current[2] + (target[2] - current[2]) * t)
+    
+        self.uDarkColor[0] = max(0, self.uLightColor[0] - 20)
+        self.uDarkColor[1] = max(0, self.uLightColor[1] - 20)
+        self.uDarkColor[2] = max(0, self.uLightColor[2] - 20)
+
+        
 
     # Load the shaders, works in windows and linux
     # Path is relitive for root (Above bin)
@@ -67,6 +98,7 @@ class Render:
 
         tex.filter = (moderngl.LINEAR, moderngl.LINEAR)
 
+        # Bind Texture args 
         self.textures[name] = tex
 
     def draw(self, texture_name, x, y, width, height):
@@ -83,8 +115,17 @@ class Render:
 
         self.program["tex"] = 0
 
+    def render(self):
+    
+        self.uTime += 0.016
+    
+        self.program["uTime"].value = self.uTime
+        self.program["uScrollSpeed"].value = self.uScrollSpeed
+    
+        self.program["uDarkColor"].value = tuple(c / 255.0 for c in self.uDarkColor)
+    
+        self.program["uLightColor"].value = tuple(c / 255.0 for c in self.uLightColor)
+
         self.vao.render(moderngl.TRIANGLE_STRIP)
 
-    def render(self):
-        self.draw("background", -1.0, -1.0, 2.0, 2.0)
-        self.draw("background_element", -1.0, -1.0, 2.0, 2.0)
+        self.cycle_col()
