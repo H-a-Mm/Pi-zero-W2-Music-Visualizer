@@ -12,7 +12,7 @@ class Main:
         if not glfw.init():
             return
 
-        self.win = glfw.create_window(960, 320, "visualizer", None, None) # When display is connect, change to run in full screen.
+        self.win = glfw.create_window(960, 320, "visualizer", None, None) # When display is connected, change to run in full screen.
         if not self.win:
             glfw.terminate()
             return
@@ -26,16 +26,24 @@ class Main:
 
         self.ctx.enable(moderngl.BLEND)
 
+        self.state = "boot" # Controlls visulizer and music slections screen, runs the whole program, WILL MIGRATE LATER
+
     def check_input(self):
         if glfw.get_key(self.win, glfw.KEY_ESCAPE):
             glfw.terminate()
+
+        if glfw.get_key(self.win, glfw.KEY_0):
+            self.state = "playing"
+
+        if glfw.get_key(self.win, glfw.KEY_1):
+            self.state = "selection"
 
     def run(self):
         while not glfw.window_should_close(self.win):
             self.ctx.clear(0.0, 0.0, 0.0)
 
             self.check_input()
-            self.render.render()
+            self.render.render(self.state)
 
             glfw.swap_buffers(self.win)
             glfw.poll_events()
