@@ -1,6 +1,7 @@
 # Internal Libs
 import os
 from itertools import chain
+from io import BytesIO
 
 # External Libs
 import moderngl
@@ -42,18 +43,46 @@ class Load:
 
 class Read:
     def cover(self, tag): # Tag defines tinytag meta-tag
-        if tag.cover:
-            with open(str(tag.title) + ".png", "wb") as f:
-                f.write(tag.cover)
-            print("Cover art saved as cover.jpg")
+        cover_bytes = tag.get("cover")
+        title = tag.get("title")
+
+        if cover_bytes:
+            path = f"music/covers/{title}.png"
+            image = Image.open(BytesIO(cover_bytes))
+            image.save(path)
+            print(f"Cover art saved as {path}")
+        else:
+            print(f"No album cover found for song {title}")
 
     def tag(self, path):
         path = Path(path)
-        instances = sum(
-            1 for f in chain(path.glob("*.mp4"), path.glob("*.m4a"))
+
+        # Store the actual file objects in 'instances'
+        instances = [
+            f for f in chain(path.glob("*.mp4"), path.glob("*.m4a"))
             if f.is_file()
-        )
-        if instances > 0:
-            print("music found: " + str(instances))
+        ]
+
+        count = len(instances)
+
+        if count > 0:
+            print(f"music found: {count}")
+            metadata_list = []
+
+            for file_path in instances:
+                try:
+                    tag_data = TinyTag.get(str(file_path), image=True)
+                    metadata_list.append({
+                        "file": file_path.name,
+                        "artist": tag_data.artist,
+                        "album": tag_data.album,
+                        "title": tag_data.title,
+                        "duration": tag_data.duration,
+                        "cover": tag_data.get_image()
+                    })
+                except Exception as e:
+                    print(f"Error reading metadata for {file_path.name}: {e}")
+
+            return metadata_list
         else:
             print("no music found in dir")

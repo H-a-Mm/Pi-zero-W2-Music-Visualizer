@@ -7,7 +7,7 @@ import moderngl
 # Local Modules
 from bin.pipeline.render import Render # relitive from root
 from utils.input import Input
-from utils.tools import Read
+from utils.tools import Read, Load
 
 
 class Main:
@@ -22,12 +22,12 @@ class Main:
 
         glfw.make_context_current(self.win)
         self.ctx = moderngl.create_context()
-        self.render = Render(self.ctx)
 
         self.input = Input()
         self.read = Read()
 
         self.tag = self.read.tag("music/")
+        self.render = Render(self.ctx, self.tag)
 
         width, height = glfw.get_framebuffer_size(self.win)
         self.ctx.viewport = (0, 0, width, height)
