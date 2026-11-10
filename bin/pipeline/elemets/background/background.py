@@ -5,12 +5,16 @@ import numpy as np
 import moderngl
 
 # Local Modules
+from utils.tools import Load
 
 class Background:
-    def __init__(self, ctx, program):
+    def __init__(self, ctx):
         cls = type(self)
         cls.ctx = ctx
-        cls.program = program
+        cls.load = Load()
+        cls.load.config(cls.ctx) # Bind the load class
+
+        cls.program = cls.load.shaders("bin/pipeline/elemets/background/shaders/bg.vert", "bin/pipeline/elemets/background/shaders/bg.frag")
         
         cls.vertices = np.array([
             -1.0, -1.0, 0.0, 0.0,

@@ -6,6 +6,7 @@ import moderngl
 
 # Local Modules
 from bin.pipeline.render import Render # relitive from root
+from utils.input import Input
 
 class Main:
     def __init__(self):
@@ -21,28 +22,21 @@ class Main:
         self.ctx = moderngl.create_context()
         self.render = Render(self.ctx)
 
+        self.input = Input()
+
         width, height = glfw.get_framebuffer_size(self.win)
         self.ctx.viewport = (0, 0, width, height)
 
-        self.ctx.enable(moderngl.BLEND)
+        self.ctx.enable(moderngl.BLEND) # Enable OpenGL Context
 
         self.state = "boot" # Controlls visulizer and music slections screen, runs the whole program, WILL MIGRATE LATER
-
-    def check_input(self):
-        if glfw.get_key(self.win, glfw.KEY_ESCAPE):
-            glfw.terminate()
-
-        if glfw.get_key(self.win, glfw.KEY_0):
-            self.state = "playing"
-
-        if glfw.get_key(self.win, glfw.KEY_1):
-            self.state = "selection"
 
     def run(self):
         while not glfw.window_should_close(self.win):
             self.ctx.clear(0.0, 0.0, 0.0)
 
-            self.check_input()
+            self.input.check(self.win)
+            self.state = self.input.check_state(self.win, self.state) # Update state every frame, do this through input (WILL CHANGE LATER!)
             self.render.render(self.state)
 
             glfw.swap_buffers(self.win)

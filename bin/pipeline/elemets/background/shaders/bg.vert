@@ -1,9 +1,9 @@
-#version 330
+#version 100
 
-in vec2 in_pos;
-in vec2 in_uv;
+attribute vec2 in_pos;
+attribute vec2 in_uv;
 
-out vec2 v_uv;
+varying vec2 v_uv;
 
 void main()
 {
