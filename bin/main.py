@@ -7,6 +7,8 @@ import moderngl
 # Local Modules
 from bin.pipeline.render import Render # relitive from root
 from utils.input import Input
+from utils.tools import Read
+
 
 class Main:
     def __init__(self):
@@ -23,6 +25,9 @@ class Main:
         self.render = Render(self.ctx)
 
         self.input = Input()
+        self.read = Read()
+
+        self.tag = self.read.tag("music/")
 
         width, height = glfw.get_framebuffer_size(self.win)
         self.ctx.viewport = (0, 0, width, height)
@@ -30,6 +35,9 @@ class Main:
         self.ctx.enable(moderngl.BLEND) # Enable OpenGL Context
 
         self.state = "boot" # Controlls visulizer and music slections screen, runs the whole program, WILL MIGRATE LATER
+
+        if not self.win:
+            print("Error assinging window to the system enviorment, check your display env var.")
 
     def run(self):
         while not glfw.window_should_close(self.win):
